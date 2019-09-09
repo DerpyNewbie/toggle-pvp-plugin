@@ -93,7 +93,7 @@ public class TogglePvP extends JavaPlugin {
             throw new IllegalAccessException("Sender of command does not have permission of change other pvp status.");
         }
         if (b == null)
-            b = isPvPEnabled(p);
+            b = !isPvPEnabled(p);
         addOrRemove(p, b);
         return isPvPEnabled(p);
     }
