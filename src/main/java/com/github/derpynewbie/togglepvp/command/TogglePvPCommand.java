@@ -15,15 +15,13 @@ public class TogglePvPCommand implements CommandExecutor {
     private static final Pattern TRUE_PATTERN = Pattern.compile("true|enable|yes|on", Pattern.CASE_INSENSITIVE);
     private static final Pattern FALSE_PATTERN = Pattern.compile("false|disable|no|off", Pattern.CASE_INSENSITIVE);
 
-    private static final String PERMISSION_CHANGE_OTHER = "togglepvp.toggle.other";
-
     // Configurable message path
     private static final String MESSAGE_ON_ENABLE = "message.self.on-enable";
     private static final String MESSAGE_ON_DISABLE = "message.self.on-disable";
     private static final String MESSAGE_ON_ENABLE_OTHER = "message.other.on-enable";
     private static final String MESSAGE_ON_DISABLE_OTHER = "message.other.on-disable";
     private static final String MESSAGE_ON_OFFLINE_OTHER = "message.other.on-offline";
-    private static final String MESSAGE_ON_PERM_LACK = "message.other.on-perm-lack";
+
 
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         // Only for players
@@ -74,12 +72,16 @@ public class TogglePvPCommand implements CommandExecutor {
             }
         }
 
-        Boolean result = setPvP(sender, target, isEnable);
+        Boolean result;
+
+        try {
+            result = TogglePvP.getInstance().setPvP(sender, target, isEnable);
+        } catch (IllegalAccessException ex) {
+            return true;
+        }
 
         // Send message
-        if (result == null)
-            return true;
-        else if (result)
+        if (result)
             sendMessage(target, sender, MESSAGE_ON_ENABLE, MESSAGE_ON_ENABLE_OTHER);
         else
             sendMessage(target, sender, MESSAGE_ON_DISABLE, MESSAGE_ON_DISABLE_OTHER);
@@ -91,18 +93,6 @@ public class TogglePvPCommand implements CommandExecutor {
         if (target != null && !sender.equals(target)) {
             TogglePvP.getInstance().sendConfigMessage(sender, path2, target.getDisplayName());
         }
-    }
-
-    private Boolean setPvP(Player sender, Player target, Boolean b) {
-        if (!sender.equals(target) && !sender.hasPermission(PERMISSION_CHANGE_OTHER)) {
-            TogglePvP.getInstance().sendConfigMessage(sender, MESSAGE_ON_PERM_LACK, target.getDisplayName());
-            return null; // Should throw exception here?
-        }
-
-        if (b == null)
-            return TogglePvP.getInstance().togglePvP(target);
-        else
-            return TogglePvP.getInstance().setPvP(target, b);
     }
 
     private Boolean isOnlinePlayer(String s) {
