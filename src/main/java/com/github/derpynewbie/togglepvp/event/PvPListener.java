@@ -16,8 +16,8 @@ public class PvPListener implements Listener {
     private static final String MESSAGE_ON_DAMAGE = "message.self.on-damage";
     private static final String MESSAGE_ON_DAMAGE_OTHER = "message.other.on-damage";
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-    public void onEntityDamaged(EntityDamageByEntityEvent event, TogglePvP instance) {
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onEntityDamaged(EntityDamageByEntityEvent event) {
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
             Player damager = getDamager(event.getDamager());
@@ -27,7 +27,7 @@ public class PvPListener implements Listener {
                     TogglePvP.getInstance().sendConfigMessage(damager, MESSAGE_ON_DAMAGE, player.getDisplayName());
                 } else if (!TogglePvP.getInstance().isPvPEnabled(player)) {
                     event.setCancelled(true);
-                    instance.sendConfigMessage(damager, MESSAGE_ON_DAMAGE_OTHER, player.getDisplayName());
+                    TogglePvP.getInstance().sendConfigMessage(damager, MESSAGE_ON_DAMAGE_OTHER, player.getDisplayName());
                 }
             }
         }
