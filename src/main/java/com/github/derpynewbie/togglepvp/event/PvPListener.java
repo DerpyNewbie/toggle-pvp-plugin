@@ -16,7 +16,7 @@ public class PvPListener implements Listener {
     private static final String MESSAGE_ON_DAMAGE = "message.self.on-damage";
     private static final String MESSAGE_ON_DAMAGE_OTHER = "message.other.on-damage";
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onEntityDamaged(EntityDamageByEntityEvent event) {
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
