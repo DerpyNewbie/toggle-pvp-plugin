@@ -3,7 +3,7 @@ name: "PvPToggler"
 author: "DerpyNewbie"
 website: "https://github.com/derpynewbie"
 description: "Allows players to toggle PvP By them selves."
-version: "1.0.0-SNAPSHOT"
+version: "1.0.1"
 api-version: "1.14"
 commands:
   TogglePvP:
