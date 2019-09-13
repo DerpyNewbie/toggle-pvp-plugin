@@ -1,6 +1,7 @@
 main: "com.github.derpynewbie.togglepvp.TogglePvP"
 name: "PvPToggler"
-author: "https://github.com/DerpyNewbie"
+author: "DerpyNewbie"
+website: "https://github.com/derpynewbie"
 description: "Allows players to toggle PvP By them selves."
 version: "1.0.0-SNAPSHOT"
 api-version: "1.14"
