@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="togglepvp:jar">
-    <output-path>D:/Test Server/plugins</output-path>
-    <root id="archive" name="togglepvp.jar">
-      <element id="module-output" name="togglepvp" />
-    </root>
-  </artifact>
-</component>
