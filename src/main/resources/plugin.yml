@@ -1,25 +1,26 @@
-main: "com.github.derpynewbie.togglepvp.TogglePvP"
-name: "PvPToggler"
+main: "dev.derpynewbie.mc.togglepvp.TogglePvPPlugin"
+name: "DerpyTogglePvP"
 author: "DerpyNewbie"
-website: "https://github.com/derpynewbie"
+website: "https://github.com/derpynewbie/toggle-pvp-plugin"
 description: "Allows players to toggle PvP By them selves."
-version: "1.0.1"
-api-version: "1.14"
+version: ${project.version}
+api-version: "1.13"
 commands:
-  TogglePvP:
+  togglepvp:
     description: "Toggles your PvP."
+    aliases: [pvp]
     usage: "/<command> | /<command> [on|off] | /<command> <player> [on|off]"
     permission: "togglepvp.toggle"
-    permission-message: "&cYou do not have enough permission to execute this command."
 permissions:
   togglepvp.*:
     description: "Allows player to use all feature (only one) in toggle pvp."
     default: "op"
     children:
       togglepvp.toggle: true
+      togglepvp.toggle.other: true
   togglepvp.toggle:
     description: "Allows player to use toggle pvp command."
     default: "true"
   togglepvp.toggle.other:
     description: "Allows player to use toggle pvp as changing other's status"
-    default: "false"
+    default: "op"

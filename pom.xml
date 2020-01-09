@@ -10,7 +10,7 @@
     </scm>
 
     <groupId>dev.derpynewbie.mc</groupId>
-    <artifactId>toggle-pvp</artifactId>
+    <artifactId>derpy-toggle-pvp</artifactId>
     <version>1.1.0-${buildNumber}</version>
     <build>
         <finalName>${project.artifactId}-${project.version}</finalName>
@@ -67,8 +67,8 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <doCheck>true</doCheck>
-                    <doUpdate>true</doUpdate>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
                     <shortRevisionLength>6</shortRevisionLength>
                 </configuration>
             </plugin>
@@ -96,6 +96,12 @@
             <artifactId>spigot-api</artifactId>
             <version>1.14.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>17.0.0</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
