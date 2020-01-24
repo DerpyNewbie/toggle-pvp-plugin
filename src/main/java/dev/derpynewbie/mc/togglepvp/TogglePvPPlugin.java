@@ -23,16 +23,21 @@ import java.util.regex.Pattern;
 
 public class TogglePvPPlugin extends JavaPlugin implements CommandExecutor, Listener {
 
+    private static boolean IS_DEBUG = false;
     private static final Pattern TRUE_PATTERN = Pattern.compile("true|enable|yes|on", Pattern.CASE_INSENSITIVE);
     private static final Pattern FALSE_PATTERN = Pattern.compile("false|disable|no|off", Pattern.CASE_INSENSITIVE);
     private static TogglePvPPlugin INSTANCE;
     private static NamespacedKey PVP_KEY;
+    private static NamespacedKey TIME_KEY;
+    private static long COOLDOWN_TIME = -1;
 
     @SuppressWarnings("WeakerAccess")
     public static TogglePvPPlugin getInstance() {
         return INSTANCE;
     }
 
+
+    // Maybe future actual API
     @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
     public static boolean setPvP(Player player, boolean pvp) {
         PersistentDataContainer data = player.getPersistentDataContainer();
@@ -42,9 +47,6 @@ public class TogglePvPPlugin extends JavaPlugin implements CommandExecutor, List
         return last;
     }
 
-
-    // Command
-
     @SuppressWarnings("WeakerAccess")
     public static boolean isPvP(Player player) {
         PersistentDataContainer data = player.getPersistentDataContainer();
@@ -52,20 +54,77 @@ public class TogglePvPPlugin extends JavaPlugin implements CommandExecutor, List
         return getBoolFromByte(data.getOrDefault(PVP_KEY, PersistentDataType.BYTE, (byte) 0));
     }
 
-
-    // Event
-
-    private static void sendMessage(Player p, String path, String format) {
+    private static void sendMessage(Player p, String path, Object o, boolean cooldown) {
         String raw = TogglePvPPlugin.getInstance().getConfig().getString(path);
         String msg = ChatColor.translateAlternateColorCodes('&', raw == null ? "" : raw);
+        boolean isCoolingDown = isMessageCoolingDown(p);
 
-        if (!msg.isEmpty()) {
-            p.sendMessage(String.format(msg, p.getDisplayName(), format));
+        sendDebug(p, "message", raw,
+                "isMessageEmpty", msg.isEmpty(),
+                "isCooldown", cooldown,
+                "isCoolingDown", isCoolingDown);
+
+        if (!msg.isEmpty() && (!cooldown || !isMessageCoolingDown(p))) {
+            p.sendMessage(formatMessage(msg, p, o));
+            if (cooldown)
+                setLastMessageTime(p);
         }
+    }
+
+    private static String formatMessage(String msg, Player p, Object o) {
+        msg = msg.replaceAll("%player%", p.getName()).replaceAll("%player_displayname%", p.getDisplayName());
+        if (o instanceof Player) {
+            Player objP = (Player) o;
+            return msg.replaceAll("%other%", objP.getName()).replaceAll("%other_displayname%", objP.getDisplayName());
+        } else {
+            return msg.replaceAll("%other%", o.toString().replaceAll("%other_displayname%", o.toString()));
+        }
+    }
+
+    private static void sendDebug(Player p, Object... values) {
+        if (IS_DEBUG) {
+            StringBuilder sb = new StringBuilder();
+            ChatColor lastColor = ChatColor.DARK_GRAY;
+
+            sb.append(ChatColor.BOLD).append("\nDEBUG:\n");
+            for (int i = 0; i < values.length; i++) {
+                if (i % 2 == 0) {
+                    lastColor = (lastColor == ChatColor.GRAY ? ChatColor.DARK_GRAY : ChatColor.GRAY);
+                    sb.append(lastColor).append(values[i]).append(": ");
+                } else {
+                    ChatColor nextColor = (lastColor == ChatColor.GRAY ? ChatColor.WHITE : ChatColor.GRAY);
+                    sb.append(nextColor).append(values[i]).append("\n");
+                }
+
+            }
+
+            p.sendMessage(sb.toString());
+        }
+    }
+
+    private static void setLastMessageTime(Player p) {
+        PersistentDataContainer data = p.getPersistentDataContainer();
+        long currentTime = System.currentTimeMillis();
+
+        data.set(TIME_KEY, PersistentDataType.LONG, currentTime);
+        sendDebug(p, "lastMessageTime", currentTime);
     }
 
 
     // Utils
+
+    private static boolean isMessageCoolingDown(Player p) {
+        PersistentDataContainer data = p.getPersistentDataContainer();
+        Long lastMessageSent = data.getOrDefault(TIME_KEY, PersistentDataType.LONG, -1L);
+        Long currentTime = System.currentTimeMillis();
+
+        sendDebug(p, "lastMessageSent", lastMessageSent,
+                "currentTime", currentTime,
+                "cooldownTime", COOLDOWN_TIME,
+                "calcResult", (lastMessageSent - currentTime));
+
+        return (currentTime - lastMessageSent) <= COOLDOWN_TIME;
+    }
 
     private static byte getByteFromBool(boolean bo) {
         return (byte) (bo ? 1 : 0);
@@ -75,21 +134,24 @@ public class TogglePvPPlugin extends JavaPlugin implements CommandExecutor, List
         return by == (byte) 1;
     }
 
+    // Bukkit methods
     @Override
     public void onDisable() {
         super.onDisable();
     }
-
-    // Private Utils
 
     @Override
     public void onEnable() {
         super.onEnable();
         INSTANCE = this;
         PVP_KEY = new NamespacedKey(this, "PvPState");
+        TIME_KEY = new NamespacedKey(this, "LastMessage");
 
         saveDefaultConfig();
         reloadConfig();
+
+        IS_DEBUG = getConfig().getBoolean("debug", false);
+        COOLDOWN_TIME = getConfig().getLong("message.cooldown-time", -1);
 
         Bukkit.getPluginManager().registerEvents(this, this);
         PluginCommand command = this.getCommand("togglepvp");
@@ -116,7 +178,7 @@ public class TogglePvPPlugin extends JavaPlugin implements CommandExecutor, List
         boolean pvpState = false;
 
         if (!player.hasPermission("togglepvp.toggle")) {
-            TogglePvPPlugin.sendMessage(player, "message.self.on-perm-lack", player.getName());
+            TogglePvPPlugin.sendMessage(player, "message.self.on-perm-lack", null, false);
             return true;
         }
 
@@ -130,7 +192,7 @@ public class TogglePvPPlugin extends JavaPlugin implements CommandExecutor, List
             } else {
                 target = Bukkit.getPlayer(args[0]);
                 if (target == null) {
-                    TogglePvPPlugin.sendMessage(player, "message.other.on-offline", args[0]);
+                    TogglePvPPlugin.sendMessage(player, "message.other.on-offline", args[0], false);
                     return true;
                 }
                 pvpState = !TogglePvPPlugin.isPvP(target);
@@ -139,7 +201,7 @@ public class TogglePvPPlugin extends JavaPlugin implements CommandExecutor, List
             target = Bukkit.getPlayer(args[0]);
             pvpState = getBoolFromString(args[1]);
             if (target == null) {
-                TogglePvPPlugin.sendMessage(player, "message.other.on-offline", args[0]);
+                TogglePvPPlugin.sendMessage(player, "message.other.on-offline", args[0], false);
                 return true;
             }
         }
@@ -147,14 +209,14 @@ public class TogglePvPPlugin extends JavaPlugin implements CommandExecutor, List
         assert target != null;
 
         if (player != target && !player.hasPermission("togglepvp.toggle.other")) {
-            TogglePvPPlugin.sendMessage(player, "message.other.on-perm-lack", target.getDisplayName());
+            TogglePvPPlugin.sendMessage(player, "message.other.on-perm-lack", target, false);
             return true;
         }
 
         TogglePvPPlugin.setPvP(target, pvpState);
-        TogglePvPPlugin.sendMessage(target, pvpState ? "message.self.on-enable" : "message.self.on-disable", target.getName());
+        TogglePvPPlugin.sendMessage(target, pvpState ? "message.self.on-enable" : "message.self.on-disable", target, false);
         if (target != player)
-            TogglePvPPlugin.sendMessage(player, pvpState ? "message.other.on-enable" : "message.other.on-disable", target.getDisplayName());
+            TogglePvPPlugin.sendMessage(player, pvpState ? "message.other.on-enable" : "message.other.on-disable", target, false);
         return true;
     }
 
@@ -167,10 +229,10 @@ public class TogglePvPPlugin extends JavaPlugin implements CommandExecutor, List
             if (damager != null) {
                 if (!TogglePvPPlugin.isPvP(damager)) {
                     event.setCancelled(true);
-                    TogglePvPPlugin.sendMessage(damager, "message.self.on-damage", player.getDisplayName());
+                    TogglePvPPlugin.sendMessage(damager, "message.self.on-damage", player, true);
                 } else if (!TogglePvPPlugin.isPvP(player)) {
                     event.setCancelled(true);
-                    TogglePvPPlugin.sendMessage(damager, "message.other.on-damage", player.getDisplayName());
+                    TogglePvPPlugin.sendMessage(damager, "message.other.on-damage", player, true);
                 }
             }
         }

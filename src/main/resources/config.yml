@@ -1,14 +1,23 @@
-# %1$s = Self DisplayName
-# %2$s = Another Player DisplayName. available on "message.self.on-damage" or in "message.other"
+#
+# AVAILABLE PLACEHOLDERS
+#   %player%, %player_displayname%: The message receiver's name/displayname
+#   %other%, %other_displayname%: The target's name/displayname
+#
+
 message:
-  self: # Message that will be sent with self behavior.
+  # The message cooldown time for on-damage. in milliseconds. -1 to disable.
+  # default = 3000 (3 seconds)
+  cooldown-time: 3000
+  self:
     on-enable: "&aYour PvP has been Enabled."
     on-disable: "&cYour PvP has been Disabled."
-    on-damage: "&cYou cannot damage %2$s while your PvP is Disabled." # will be sent when "self" has pvp disabled.
-    on-perm-lack: "&cYou do not have permission to execute this command." # ONLY USED FOR PERMISSION CHECK INSIDE.
-  other: # Message that will be sent with other player behavior.
-    on-enable: "&aYou changed %2$s's PvP Status to Enabled."
-    on-disable: "&cYou changed %2$s's PvP Status to Disabled."
-    on-offline: "&cPlayer %2$s is not online."
-    on-perm-lack: "&cYou cannot change others PvP Status." # ONLY USED FOR OTHER PERMISSION CHECK.
-    on-damage: "&cYou cannot damage %2$s while %2$s's PvP is not Enabled." # will be sent when "other" player has pvp disabled.
+    on-perm-lack: "&cYou do not have permission to execute this command."
+    # will be sent when "you" have pvp disabled.
+    on-damage: "&cYou cannot damage %other_displayname% while your PvP is Disabled."
+  other:
+    on-enable: "&aYou have been changed %other_displayname%'s PvP Status to Enabled."
+    on-disable: "&cYou have been changed %other_displayname%'s PvP Status to Disabled."
+    on-offline: "&cPlayer %other% is not online."
+    on-perm-lack: "&cYou cannot change others PvP Status."
+    # will be sent when "hitting player" has pvp disabled.
+    on-damage: "&cYou cannot damage %other_displayname% while %other_displayname%'s PvP is not Enabled."

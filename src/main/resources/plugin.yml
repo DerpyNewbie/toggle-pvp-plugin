@@ -3,7 +3,7 @@ name: "DerpyTogglePvP"
 author: "DerpyNewbie"
 website: "https://github.com/derpynewbie/toggle-pvp-plugin"
 description: "Allows players to toggle PvP By them selves."
-version: ${project.version}
+version: ${project.version}-${buildNumber}
 api-version: "1.13"
 commands:
   togglepvp:

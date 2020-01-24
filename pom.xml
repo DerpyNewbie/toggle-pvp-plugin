@@ -11,9 +11,9 @@
 
     <groupId>dev.derpynewbie.mc</groupId>
     <artifactId>derpy-toggle-pvp</artifactId>
-    <version>1.1.0-${buildNumber}</version>
+    <version>1.1.0</version>
     <build>
-        <finalName>${project.artifactId}-${project.version}</finalName>
+        <finalName>${project.artifactId}-${project.version}-${buildNumber}</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
