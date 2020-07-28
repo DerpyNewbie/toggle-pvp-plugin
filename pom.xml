@@ -12,7 +12,7 @@
 
     <groupId>dev.derpynewbie.mc</groupId>
     <artifactId>derpy-toggle-pvp</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.1</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -85,6 +85,10 @@
 
         <!--Spigot repos-->
         <repository>
+            <id>sk89q-repo</id>
+            <url>https://maven.enginehub.org/repo/</url>
+        </repository>
+        <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
@@ -102,6 +106,11 @@
             <artifactId>spigot-api</artifactId>
             <version>1.14.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-bukkit</artifactId>
+            <version>7.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
